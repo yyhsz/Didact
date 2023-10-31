@@ -1,10 +1,13 @@
 // const App = <div>...</div>
 // React.render(App, document.getElementById('root'))
+const TEXT_ELEMENT = 'TEXT_ELEMENT';
+const isProp = (key) => key !== 'children';
 
 type DidactElement = {
   type: string;
   props: Record<string, any> & { children?: any };
 };
+
 /** @jsx Didact.createElement */
 const createElement = (
   type: string,
@@ -32,9 +35,18 @@ const createTextElement = (text: string) => {
 };
 
 const render = (ele: DidactElement, container: HTMLElement) => {
-  const dom = document.createElement(ele.type);
+  const dom =
+    ele.type === TEXT_ELEMENT
+      ? document.createTextNode('')
+      : document.createElement(ele.type);
+  Object.keys(ele.props)
+    .filter(isProp)
+    .forEach((prop) => {
+      dom[prop] = ele.props[prop];
+    });
+
   ele.props.children?.forEach((child) => {
-    render(child, dom);
+    render(child, dom as HTMLElement);
   });
   container.appendChild(dom);
 };
